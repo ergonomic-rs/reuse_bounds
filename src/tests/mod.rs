@@ -1,5 +1,5 @@
 #![cfg(test)]
-
+#![reuse_bounds_derive::pass]
 use super::reuse_bounds;
 
 /*macro_rules! outer {
@@ -67,6 +67,59 @@ fn non_tokens_passed_down() {
     outer! {usize};
 }
 
+// Generic params: First lifetimes, then consts and types
+struct GenericVariaties<'a, T, const N: usize, U, const P: usize>
+where [(); N+1]: Sized {
+    arr_plus_one: [char; N+1],
+    arr_p: [u8; P],
+    string: &'a str,
+    t: T,
+    u: U
+}
+
+macro_rules! generics {
+    (
+        $( ^ << {
+             $($left_lifetime:tt)*
+        } )?
+        $( << ^ {
+            $($right_lifetime:tt)*
+        } )?
+        $( ^ >>  {
+            $($left_type:tt)*
+        } )?
+        $( >> ^ {
+            $($right_type:tt)*
+        } )?
+        $( where {
+            $($_tt3:tt)*
+        } )?
+        {   
+            // Either :item or :tt is OK within {...}:
+            $($_item:item)*
+            //$($item_to_be_bounded_token:tt)*
+        }
+    ) => {};
+}
+
+generics! {
+    ^ << {
+        'a, 'b
+    }
+    << ^ {
+        'c, 'd
+    }
+    ^ >> {
+        T, const N: usize
+    }
+    >> ^ {
+        U, const P: usize
+    }
+    where {
+
+    }
+    {}
+}
 
 #[test]
 fn blocks_lookahead() {
@@ -82,7 +135,7 @@ fn accepts_empty_bounds_and_items () {
 
 #[test]
 fn inner_reuse () {
-    trace_macros!(true);
+    //trace_macros!(true);
     reuse_bounds! {
         {
             [(); 2*N] : Sized,

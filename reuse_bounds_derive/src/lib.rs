@@ -93,7 +93,7 @@ pub fn pass_unwrapped_bounds_to_one_item(unwrapped_bound_pairs: TokenStream, ite
         let mut token_tree_it = item_macro.mac.tokens.into_iter();
         let first_group = token_tree_it.next().unwrap();
 
-        // Not efficient. If you know a better way, please create a merge request.
+        // Not efficient. If you know a much better way, please create a merge request.
         // @TODO Consider parsing all the items here, and generate #[pass_unwrapped_bounds_to_one_item(..)] calls here, one per item?
         let rest_of_macro_content: TokenStream2 = token_tree_it.collect();
 
@@ -107,7 +107,6 @@ pub fn pass_unwrapped_bounds_to_one_item(unwrapped_bound_pairs: TokenStream, ite
                         #first_group_unwrapped
     
                     }
-                    //#inner_macro_like_call_content_tokens //leftovers - this works for TokenStream2  only!
                     #rest_of_macro_content
                 }
             };
@@ -143,7 +142,7 @@ pub fn pass_unwrapped_bounds_to_one_item(unwrapped_bound_pairs: TokenStream, ite
             &mut item.sig.generics
         }
         _ => {
-            panic!("Expecting the bounded item to be an enum/struct/trait/union, standalone impl (for a enum/struct/trait/union), or impl of a trait (for a enum/struct/trait/union), or a fn. However, received {:?}.", item);
+            panic!("Expecting the bounded item to be an enum/macro invocation/struct/trait/union, standalone impl (for a enum/struct/trait/union), or impl of a trait (for a enum/struct/trait/union), or a fn. However, received {:?}.", item);
         }
     };
     if let Some(where_clause) = &mut generics.where_clause {
@@ -160,4 +159,10 @@ pub fn pass_unwrapped_bounds_to_one_item(unwrapped_bound_pairs: TokenStream, ite
         #item
     };
     gen.into()
+}
+
+// @TODO remove
+#[proc_macro_attribute]
+pub fn pass(params: TokenStream, content: TokenStream) -> TokenStream {
+    content
 }

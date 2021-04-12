@@ -1,6 +1,8 @@
 #![allow(incomplete_features)]
 #![feature(trace_macros)]
 #![feature(const_generics,const_evaluatable_checked)]
+#![feature(custom_inner_attributes)]
+#![feature(proc_macro_hygiene)]
 
 mod tests;
 
@@ -20,16 +22,13 @@ macro_rules! reuse_bounds {
       $($item_to_be_bounded_token:tt)*
     ) => {
         $crate::handle_wrapped_all_items_wrapped_bounds! {
-            // Re-ordering: items first, bounds second. That's because we'll despatch/act depending
-            // on an item's being `reuse_bounds! { ...}` or not, so that we treat any inner
-            // reuse_bounds! {...} recursively first.            
-            {
-                $($item_to_be_bounded_token)*
-            }
             // Wrap bounds together. Then the deeper macro_rules! can pass the same set of bounds
             // to each item.
             {
                 $($bound_pairs_token)*
+            }
+            {
+                $($item_to_be_bounded_token)*
             }
         }
     }
@@ -38,17 +37,13 @@ macro_rules! reuse_bounds {
 #[macro_export]
 macro_rules! handle_wrapped_all_items_wrapped_bounds {
     (
-        {}
-        $_wrapped_bound_pairs:tt
-    ) => {};
-    (
+        $wrapped_bound_pairs:tt
         {
             $($item_to_be_bounded:item)*
         }
-        $wrapped_bound_pairs:tt
     ) => {
         $(
-            $crate::pass_wrapped_bounds_to_one_item! {
+            $crate::handle_one_item_wrapped_bounds! {
                 $wrapped_bound_pairs
                 $item_to_be_bounded
             }
@@ -57,7 +52,7 @@ macro_rules! handle_wrapped_all_items_wrapped_bounds {
 }
 
 #[macro_export]
-macro_rules! pass_wrapped_bounds_to_one_item {
+macro_rules! handle_one_item_wrapped_bounds {
     (
         {
             $($bound_pairs_tokens:tt)*
