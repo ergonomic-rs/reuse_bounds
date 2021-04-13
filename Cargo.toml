@@ -13,4 +13,4 @@ clearer-errors = []
 generics = "0.2.6"
 syn = "1.0"
 quote = "1.0"
-reuse_bounds_derive = {path="reuse_bounds_derive/"}
+reuse_bounds_macros = {path="reuse_bounds_macros/"}

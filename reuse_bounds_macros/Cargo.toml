@@ -1,5 +1,5 @@
 [package]
-name = "reuse_bounds_derive"
+name = "reuse_bounds_macros"
 version = "0.1.0"
 authors = ["Peter Kehl <peter.kehl@gmail.com>"]
 edition = "2018"

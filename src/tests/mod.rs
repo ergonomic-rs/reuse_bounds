@@ -1,5 +1,6 @@
 #![cfg(test)]
-#![reuse_bounds_derive::pass]
+// @TODO the following made errors (if any) more complicated
+// #![reuse_bounds_macros::pass]
 use super::reuse_bounds;
 
 /*macro_rules! outer {
@@ -122,14 +123,16 @@ generics! {
 }
 
 #[test]
-fn blocks_lookahead() {
+fn accepts_no_bounds_and_items () {
+    super::reuse_bounds! {
+        {}
+    }
 }
-
 
 #[test]
 fn accepts_empty_bounds_and_items () {
     super::reuse_bounds! {
-        {}
+        where {}
     }
 }
 
@@ -137,7 +140,7 @@ fn accepts_empty_bounds_and_items () {
 fn inner_reuse () {
     //trace_macros!(true);
     reuse_bounds! {
-        {
+        where {
             [(); 2*N] : Sized,
         }
         struct S<const N: usize> {
@@ -145,6 +148,7 @@ fn inner_reuse () {
         }
 
         reuse_bounds! {
+            //@TODO << ^ ... where
             // additional bounds on top of the outer bounds:
             {
                 // @TODO TODO currently we require a trailing comma here:
@@ -178,7 +182,7 @@ fn apply_on_struct_impl_fn() {
     //trace_macros!(true);
     trait Traity {}
     reuse_bounds! {
-        {
+        where {
             [(); 4*N] : Sized,
             [(); 5*N] : Sized
         }

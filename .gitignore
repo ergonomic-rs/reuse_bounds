@@ -1,3 +1,2 @@
-/target
-/reuse_bounds_derive/target
+/**/target
 Cargo.lock

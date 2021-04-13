@@ -102,7 +102,7 @@ pub fn pass_unwrapped_bounds_to_one_item(unwrapped_bound_pairs: TokenStream, ite
 
             let gen = quote! {
                 reuse_bounds! {
-                    {
+                    where {
                         #bound_pairs
                         #first_group_unwrapped
     

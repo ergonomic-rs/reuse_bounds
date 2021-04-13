@@ -2,7 +2,7 @@
 //#![feature(custom_inner_attributes)]
 // #![reuse_bounds_derive::accept_where_predicates_with_flexible_commas(x: y,, a:b)]
 
-use reuse_bounds_derive::accept_where_predicates_with_flexible_commas;
+use reuse_bounds_macros::accept_where_predicates_with_flexible_commas;
 
 #[accept_where_predicates_with_flexible_commas(x: y,, a:b)]
 struct S {

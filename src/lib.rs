@@ -14,12 +14,15 @@ mod tests;
 #[macro_export]
 macro_rules! reuse_bounds {
     (
+        {}
+    ) => {}; //@TODO
+    (
       // @TODO Optional two/three? sets of <generics> first: lifetimes, then const generics + non-lifetime generics, then: where bound_pair_tokens*
-      {
+      where {
           $($bound_pairs_token:tt)*
       }
       
-      $($item_to_be_bounded_token:tt)*
+      $($item_to_be_bounded_token:item)*
     ) => {
         $crate::handle_wrapped_all_items_wrapped_bounds! {
             // Wrap bounds together. Then the deeper macro_rules! can pass the same set of bounds
@@ -60,7 +63,7 @@ macro_rules! handle_one_item_wrapped_bounds {
         
         $item:item
     ) => {
-        #[reuse_bounds_derive::pass_unwrapped_bounds_to_one_item($($bound_pairs_tokens)*)]
+        #[reuse_bounds_macros::pass_unwrapped_bounds_to_one_item($($bound_pairs_tokens)*)]
          $item
     }
 }
