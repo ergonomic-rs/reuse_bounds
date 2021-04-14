@@ -122,6 +122,16 @@ generics! {
     {}
 }
 
+generics! {
+    >> ^ {
+        U, const P: usize
+    }
+    where {
+
+    }
+    {}
+}
+
 #[test]
 fn accepts_no_bounds_and_items () {
     super::reuse_bounds! {
@@ -133,6 +143,7 @@ fn accepts_no_bounds_and_items () {
 fn accepts_empty_bounds_and_items () {
     super::reuse_bounds! {
         where {}
+        {}
     }
 }
 
@@ -143,29 +154,30 @@ fn inner_reuse () {
         where {
             [(); 2*N] : Sized,
         }
-        struct S<const N: usize> {
-            value: [char; 2*N]
-        }
-
-        reuse_bounds! {
-            //@TODO << ^ ... where
-            // additional bounds on top of the outer bounds:
-            {
-                // @TODO TODO currently we require a trailing comma here:
-                [(); 3*N] : Sized,
+        {
+            struct S<const N: usize> {
+                value: [char; 2*N]
             }
-            struct InnerS<const N: usize>
-            {
-                twice_fields: [u32;2*N],
-                thrice_fields: [u32;3*N],
-                b: bool
+
+            reuse_bounds! {
+                //@TODO << ^ ... where
+                // additional bounds on top of the outer bounds:
+                {
+                    // @TODO TODO currently we require a trailing comma here:
+                    [(); 3*N] : Sized,
+                }
+                struct InnerS<const N: usize>
+                {
+                    twice_fields: [u32;2*N],
+                    thrice_fields: [u32;3*N],
+                    b: bool
+                }
+            }
+
+            enum E<const N: usize> {
+                ExactlyOne(S<N>)
             }
         }
-
-        enum E<const N: usize> {
-            ExactlyOne(S<N>)
-        }
-
     }
     let _s = S::<2> {value: ['a', 'b', 'c', 'd']};
     let _inner_s = InnerS::<1> {
@@ -186,45 +198,46 @@ fn apply_on_struct_impl_fn() {
             [(); 4*N] : Sized,
             [(); 5*N] : Sized
         }
-        
-        struct S<const N: usize>
         {
-            four_fields: [u32;4*N],
-            five_fields: [u32;5*N],
-            x: bool
-        }
+            struct S<const N: usize>
+            {
+                four_fields: [u32;4*N],
+                five_fields: [u32;5*N],
+                x: bool
+            }
 
-        impl <const N: usize> S<N> {
-            pub fn new() -> S<N> {
-                S {
-                    four_fields: [0; 4*N],
-                    five_fields: [0; 5*N],
-                    x: false
+            impl <const N: usize> S<N> {
+                pub fn new() -> S<N> {
+                    S {
+                        four_fields: [0; 4*N],
+                        five_fields: [0; 5*N],
+                        x: false
+                    }
                 }
             }
+
+            impl <const N: usize> Traity for S<N> {}
+
+            fn f<const N: usize>(_arg: S<N>) -> S<N> {
+                let result = S::<N>::new();
+                result
+            }
+
+            enum E<const N: usize> {
+                ExactlyOne(S<N>)
+            }
+
+            union U<const N: usize>
+            {
+                four_fields: [u32;4*N],
+                five_fields: [u32;5*N],
+                x: bool
+            }
+
+            // @TODO negative test - that this, and other "items", fail:
+            // See https://docs.rs/syn/*/syn/enum.Item.html.
+            //const C:u32 = 1;
         }
-
-        impl <const N: usize> Traity for S<N> {}
-
-        fn f<const N: usize>(_arg: S<N>) -> S<N> {
-            let result = S::<N>::new();
-            result
-        }
-
-        enum E<const N: usize> {
-            ExactlyOne(S<N>)
-        }
-
-        union U<const N: usize>
-        {
-            four_fields: [u32;4*N],
-            five_fields: [u32;5*N],
-            x: bool
-        }
-
-        // @TODO negative test - that this, and other "items", fail:
-        // See https://docs.rs/syn/*/syn/enum.Item.html.
-        //const C:u32 = 1;
     }
     trace_macros!(false);
 }

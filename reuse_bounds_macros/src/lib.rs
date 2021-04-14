@@ -107,7 +107,9 @@ pub fn pass_unwrapped_bounds_to_one_item(unwrapped_bound_pairs: TokenStream, ite
                         #first_group_unwrapped
     
                     }
-                    #rest_of_macro_content
+                    {
+                        #rest_of_macro_content
+                    }
                 }
             };
     

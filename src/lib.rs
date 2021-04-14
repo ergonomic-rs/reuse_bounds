@@ -15,20 +15,34 @@ mod tests;
 macro_rules! reuse_bounds {
     (
         {}
-    ) => {}; //@TODO
+    ) => {}; //@TODO remove after I have tests
     (
-      // @TODO Optional two/three? sets of <generics> first: lifetimes, then const generics + non-lifetime generics, then: where bound_pair_tokens*
-      where {
-          $($bound_pairs_token:tt)*
-      }
-      
-      $($item_to_be_bounded_token:item)*
+        $( ^ << {
+            $($left_lifetime:tt)*
+        } )?
+        $( << ^ {
+            $($right_lifetime:tt)*
+        } )?
+        $( ^ >>  {
+            $($left_type_or_const:tt)*
+        } )?
+        $( >> ^ {
+            $($right_type_or_const:tt)*
+        } )?
+        $(where {
+            $($bound_pairs_token:tt)*
+        })?
+        // The following items have to be in a {} block, because the above parts
+        // are optional.
+        {
+            $($item_to_be_bounded_token:item)*
+        }
     ) => {
         $crate::handle_wrapped_all_items_wrapped_bounds! {
             // Wrap bounds together. Then the deeper macro_rules! can pass the same set of bounds
             // to each item.
             {
-                $($bound_pairs_token)*
+                $( $($bound_pairs_token)* )?
             }
             {
                 $($item_to_be_bounded_token)*
